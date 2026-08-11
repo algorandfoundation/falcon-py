@@ -1,4 +1,4 @@
-# falcon-det1024
+# temp-falcon
 
 Python bindings for the Algorand deterministic **Falcon** (`det1024`) post-quantum signature scheme, built directly over the [`algorand/falcon`](https://github.com/algorand/falcon) C implementation with [cffi](https://cffi.readthedocs.io/) in **API mode**.
 
@@ -11,7 +11,7 @@ Python bindings for the Algorand deterministic **Falcon** (`det1024`) post-quant
 ## Installation
 
 ```console
-pip install falcon-det1024
+pip install temp-falcon
 ```
 
 Prebuilt `cp310-abi3` wheels are published for Linux (x86_64/aarch64, manylinux and musllinux), macOS (x86_64/arm64), and Windows (amd64). The only runtime dependency is `cffi`.
@@ -19,14 +19,14 @@ Prebuilt `cp310-abi3` wheels are published for Linux (x86_64/aarch64, manylinux 
 ## Quickstart
 
 ```python
-from falcon_det1024 import FalconSigner, InvalidSignature
+from temp_falcon import falcon1024, InvalidSignature
 
-signer = FalconSigner.generate()          # or generate(seed) for deterministic keygen
+signer = falcon1024.Signer.generate()  # or generate(seed) for deterministic keygen
 
-signature = signer.sign(b"hello world")   # deterministic, compressed format
+signature = signer.sign(b"hello world")  # deterministic, compressed format
 
 verifier = signer.verifying_key()
-verifier.verify(b"hello world", signature)      # returns None; raises on failure
+verifier.verify(b"hello world", signature)  # returns None; raises on failure
 assert verifier.is_valid(b"hello world", signature)
 
 try:
@@ -37,15 +37,15 @@ except InvalidSignature:
 
 ## Using with py-algorand-sdk
 
-`py-algorand-sdk` has no Falcon dependency: its post-quantum signer takes a public key plus a callback that signs exact preimage bytes. `FalconSigner.sign` is that callback.
+`py-algorand-sdk` has no Falcon dependency: its post-quantum signer takes a public key plus a callback that signs exact preimage bytes. `signer.sign` is that callback.
 
 ```python
 from algosdk import mnemonic, constants
 from algosdk.signer import Falcon1024TransactionSigner
-from falcon_det1024 import FalconSigner
+from temp_falcon import falcon1024
 
 seed = mnemonic.to_pq_seed(my_mnemonic, constants.falcon_1024_scheme)  # 32 bytes
-signer = FalconSigner.generate(seed)
+signer = falcon1024.Signer.generate(seed)
 
 txn_signer = Falcon1024TransactionSigner(signer.public_key, signer.sign)
 ```
@@ -54,17 +54,19 @@ The same signer serves both preimage families the SDK produces: transactions (`"
 
 ## API
 
-### `FalconSigner`
+The parameter set lives in the `falcon1024` namespace module; the exceptions are shared at the top level. The scheme is **det1024** (deterministic Falcon-1024), and its signatures are *not* interoperable with standard randomized ("salted") Falcon-1024.
 
-- `FalconSigner.generate(seed: bytes | None = None) -> FalconSigner`: create a new keypair. `seed=None` derives from a fresh 48-byte OS CSPRNG seed. Otherwise `seed` deterministically derives the keypair and may be any non-empty length. For Algorand accounts it is the 32 bytes `algosdk.mnemonic.to_pq_seed()` returns.
-- `FalconSigner(private_key: bytes)`: load from stored private key bytes. The public key is recomputed from the private key, so the two can never disagree.
+### `falcon1024.Signer`
+
+- `falcon1024.Signer.generate(seed: bytes | None = None) -> Signer`: create a new keypair. `seed=None` derives from a fresh 48-byte OS CSPRNG seed. Otherwise `seed` deterministically derives the keypair and may be any non-empty length. For Algorand accounts it is the 32 bytes `algosdk.mnemonic.to_pq_seed()` returns.
+- `falcon1024.Signer(private_key: bytes)`: load from stored private key bytes. The public key is recomputed from the private key, so the two can never disagree.
 - `.sign(message: bytes) -> bytes`: deterministic compressed signature.
-- `.verifying_key() -> FalconVerifier`
+- `.verifying_key() -> falcon1024.Verifier`
 - `.private_key`, `.public_key`: raw `bytes`.
 
-### `FalconVerifier`
+### `falcon1024.Verifier`
 
-- `FalconVerifier(public_key: bytes)`
+- `falcon1024.Verifier(public_key: bytes)`
 - `.verify(message, signature) -> None`: raises `InvalidSignature` on failure.
 - `.is_valid(message, signature) -> bool`
 - `.public_key`
@@ -75,11 +77,11 @@ The same signer serves both preimage families the SDK produces: transactions (`"
 
 ### Constants
 
-`PUBLIC_KEY_SIZE=1793`, `PRIVATE_KEY_SIZE=2305`, `COMPRESSED_SIG_MAX_SIZE=1423`. Resolved from the C header macros at build time, so they can never drift from the vendored library.
+`falcon1024.PUBLIC_KEY_SIZE=1793`, `falcon1024.PRIVATE_KEY_SIZE=2305`, `falcon1024.COMPRESSED_SIG_MAX_SIZE=1423`. Resolved from the C header macros at build time, so they can never drift from the vendored library.
 
 ### Exceptions
 
-`FalconError` is the base class. `InvalidSignature`, `KeygenError`, and `SigningError` derive from it. Wrong argument *sizes* raise the built-in `ValueError`, and arguments of the wrong type raise `TypeError`.
+`FalconError` is the base class. `InvalidSignature`, `KeygenError`, and `SigningError` derive from it. Wrong *key* sizes raise the built-in `ValueError` (signatures are variable-length, so a malformed one fails verification with `InvalidSignature` instead), and arguments of the wrong type raise `TypeError`.
 
 ## Development
 
@@ -89,8 +91,10 @@ Requires [uv](https://docs.astral.sh/uv/). The Falcon C sources are vendored as 
 git clone --recurse-submodules https://github.com/mrcointreau/falcon-det1024
 cd falcon-det1024
 uv sync                 # builds the cffi extension + installs dev deps
+uvx pre-commit install  # ruff format + lint on every commit
 uv run pytest           # roundtrip, determinism, tamper, surface, and 512+32 KATs
 uv run mypy             # strict
+uv run ruff format . && uv run ruff check --fix .   # or let the pre-commit hook do it
 ```
 
 Wheels are built with [cibuildwheel](https://cibuildwheel.pypa.io/) (`uvx cibuildwheel` locally). Releases are cut by [python-semantic-release](https://python-semantic-release.readthedocs.io/) from [conventional commits](https://www.conventionalcommits.org/).

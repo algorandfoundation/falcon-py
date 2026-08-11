@@ -1,6 +1,6 @@
 # Design & binding reference
 
-How-it-works and reference notes for falcon-det1024. The significant, alternative-bearing decisions live as decision records under [adr/](adr/), which indexes them.
+How-it-works and reference notes for temp-falcon. The significant, alternative-bearing decisions live as decision records under [adr/](adr/), which indexes them.
 
 ## The cdef forms
 
@@ -8,9 +8,9 @@ In API mode the `cdef` declares values that the C compiler fills in. Size consta
 
 ## Public surface
 
-The package exposes `FalconSigner`, `FalconVerifier`, three size constants, and four exceptions. The cffi marshalling lives in the private `_bindings.py`, so the two classes are the only supported way to reach a det1024 primitive. CT format, coefficient inspection, and salt-version reads stay unexposed; [ADR 0006](adr/0006-minimal-public-surface.md) records why.
+The package exposes the `falcon1024` namespace module (`Signer`, `Verifier`, and three size constants) plus four shared exceptions at the top level. The cffi marshalling lives in the private `_bindings.py`, so the two classes are the only supported way to reach a det1024 primitive. CT format, coefficient inspection, and salt-version reads stay unexposed; [ADR 0006](adr/0006-minimal-public-surface.md) records why, and [ADR 0007](adr/0007-parameter-set-namespaces.md) records the namespace shape. The size constants are *defined* in `_bindings.py` (which needs them for its length checks) and re-exported by `falcon1024`; defining them in the public module would make the import arrow point the wrong way.
 
-`FalconSigner` takes only a private key and recomputes the public key via `falcon_make_public`, so a mismatched keypair cannot be constructed. That matters because an Algorand address derives from the public key: a signer holding an unrelated private key would produce signatures that can never authorize its own address, with no error until consensus rejects them.
+`falcon1024.Signer` takes only a private key and recomputes the public key via `falcon_make_public`, so a mismatched keypair cannot be constructed. That matters because an Algorand address derives from the public key: a signer holding an unrelated private key would produce signatures that can never authorize its own address, with no error until consensus rejects them.
 
 ## Memory safety: exact-length guards
 

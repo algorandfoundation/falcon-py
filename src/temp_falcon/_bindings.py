@@ -1,6 +1,6 @@
 """Private cffi marshalling for the det1024 operations the package exposes.
 
-`FalconSigner` and `FalconVerifier` in `api.py` are the supported surface; this
+`Signer` and `Verifier` in `falcon1024.py` are the supported surface; this
 module is internal. It binds the C functions behind them: keygen, public-key
 recomputation, compressed signing, and compressed verification.
 
@@ -17,11 +17,18 @@ import os
 
 from . import exceptions as exc
 from ._lib import err_name, ffi, lib
-from .constants import (
-    COMPRESSED_SIG_MAX_SIZE,
-    PRIVATE_KEY_SIZE,
-    PUBLIC_KEY_SIZE,
-)
+
+# The det1024 sizes, resolved from the C header macros (cffi API mode), so they
+# can never drift from the vendored library. They are defined here rather than
+# in `falcon1024` because this module needs them for its length checks; the
+# public namespace re-exports them.
+
+#: Public key length in bytes (FALCON_DET1024_PUBKEY_SIZE).
+PUBLIC_KEY_SIZE: int = int(lib.FALCON_DET1024_PUBKEY_SIZE)
+#: Private key length in bytes (FALCON_DET1024_PRIVKEY_SIZE).
+PRIVATE_KEY_SIZE: int = int(lib.FALCON_DET1024_PRIVKEY_SIZE)
+#: Maximum compressed signature length in bytes (actual length is variable).
+COMPRESSED_SIG_MAX_SIZE: int = int(lib.FALCON_DET1024_SIG_COMPRESSED_MAXSIZE)
 
 # Length of the randomly generated seed used when no seed is supplied. The seed
 # only has to saturate the SHAKE256 PRNG that `keygen` draws from, so 384 bits
@@ -49,9 +56,7 @@ def _as_bytes(name: str, value: object) -> bytes:
 
 def _check_len(name: str, value: bytes, expected: int) -> None:
     if len(value) != expected:
-        raise ValueError(
-            f"{name} must be exactly {expected} bytes, got {len(value)}"
-        )
+        raise ValueError(f"{name} must be exactly {expected} bytes, got {len(value)}")
 
 
 def keygen(seed: bytes | None = None) -> bytes:

@@ -41,6 +41,29 @@ jobs:
       - name: Run tests (roundtrip, determinism, tamper, surface, KATs)
         run: uv run pytest -q
 
+  lint:
+    name: ruff (format + lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          python-version: "3.12"
+      # --only-group skips building the cffi extension: ruff reads source, so
+      # the submodule checkout and C toolchain are unnecessary here.
+      - run: uv sync --only-group dev --no-install-project
+      - run: uv run --no-project ruff format --check .
+      - run: uv run --no-project ruff check .
+      # Dependency audit straight off uv.lock (no sync needed). --locked also
+      # fails if the lockfile is stale against pyproject.toml. Real-time
+      # monitoring between pushes is Dependabot's job (.github/dependabot.yml);
+      # if an unrelated advisory ever blocks a PR, `uv audit --ignore <ID>` is
+      # the escape hatch.
+      - run: uv audit --locked
+
   typecheck:
     name: mypy (strict)
     runs-on: ubuntu-latest

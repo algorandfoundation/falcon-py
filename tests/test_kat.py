@@ -10,7 +10,7 @@ The procedure follows `vendor/falcon/tests/test_deterministic.c`. For each index
   - the message is `i` bytes squeezed from a SHAKE256 PRNG seeded with the ASCII
     string `"msg-%04d" % i`;
   - the keypair is generated from a SHAKE256 PRNG seeded with `"key-%04d" % i`;
-  - `FalconSigner.sign` must reproduce `FALCON_DET1024_KAT[i]`;
+  - `falcon1024.Signer.sign` must reproduce `FALCON_DET1024_KAT[i]`;
   - the CT conversion must reproduce `FALCON_DET1024_KAT_CT[i]`.
 
 Message generation and CT conversion are not part of the public API, so they go
@@ -27,9 +27,8 @@ from pathlib import Path
 
 import pytest
 
-import falcon_det1024 as fp
-from falcon_det1024 import _falcon
-from falcon_det1024 import constants as C
+from temp_falcon import _falcon
+from temp_falcon import falcon1024
 
 
 def find_kat_header() -> Path | None:
@@ -95,13 +94,13 @@ def _message(i: int) -> bytes:
 
 def _keypair(i: int) -> tuple[bytes, bytes]:
     rng = _prng(f"key-{i:04d}".encode("ascii"))
-    priv = _ffi.new("uint8_t[]", C.PRIVATE_KEY_SIZE)
-    pub = _ffi.new("uint8_t[]", C.PUBLIC_KEY_SIZE)
+    priv = _ffi.new("uint8_t[]", falcon1024.PRIVATE_KEY_SIZE)
+    pub = _ffi.new("uint8_t[]", falcon1024.PUBLIC_KEY_SIZE)
     rc = int(_lib.falcon_det1024_keygen(rng, priv, pub))
     assert rc == 0, f"keygen failed for KAT {i}: rc={rc}"
     return (
-        bytes(_ffi.buffer(priv, C.PRIVATE_KEY_SIZE)),
-        bytes(_ffi.buffer(pub, C.PUBLIC_KEY_SIZE)),
+        bytes(_ffi.buffer(priv, falcon1024.PRIVATE_KEY_SIZE)),
+        bytes(_ffi.buffer(pub, falcon1024.PUBLIC_KEY_SIZE)),
     )
 
 
@@ -123,7 +122,7 @@ def test_kat_compressed_signatures() -> None:
     for i in range(NUM_KATS):
         message = _message(i)
         priv, pub = _keypair(i)
-        signer = fp.FalconSigner(priv)
+        signer = falcon1024.Signer(priv)
         # `falcon_make_public` must agree with what `falcon_det1024_keygen`
         # wrote, for all 512 keypairs.
         assert signer.public_key == pub, f"derived public key mismatch at index {i}"
@@ -138,5 +137,5 @@ def test_kat_ct_signatures() -> None:
     for i in range(NUM_KATS_CT):
         message = _message(i)
         priv, _pub = _keypair(i)
-        sig = fp.FalconSigner(priv).sign(message)
+        sig = falcon1024.Signer(priv).sign(message)
         assert _to_ct(sig).hex() == _KAT_CT[i], f"CT KAT mismatch at index {i}"

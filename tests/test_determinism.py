@@ -6,21 +6,22 @@ import os
 
 import pytest
 
-import falcon_det1024 as fp
+from temp_falcon import falcon1024
+
 
 SEED = bytes(range(32))
 
 
 def test_keygen_from_seed_is_deterministic() -> None:
-    a = fp.FalconSigner.generate(seed=SEED)
-    b = fp.FalconSigner.generate(seed=SEED)
+    a = falcon1024.Signer.generate(seed=SEED)
+    b = falcon1024.Signer.generate(seed=SEED)
     assert a.private_key == b.private_key
     assert a.public_key == b.public_key
 
 
 def test_different_seed_different_keypair() -> None:
-    a = fp.FalconSigner.generate(seed=bytes(32))
-    b = fp.FalconSigner.generate(seed=bytes([1] + [0] * 31))
+    a = falcon1024.Signer.generate(seed=bytes(32))
+    b = falcon1024.Signer.generate(seed=bytes([1] + [0] * 31))
     assert a.public_key != b.public_key
     assert a.private_key != b.private_key
 
@@ -32,12 +33,12 @@ def test_seed_is_used_verbatim_not_padded_or_truncated() -> None:
     # padding or truncating to any single length would collapse them onto one
     # keypair.
     seeds = [bytes(8), bytes(31), bytes(32), bytes(64), bytes(32) + b"\x01"]
-    keys = {fp.FalconSigner.generate(seed=s).public_key for s in seeds}
+    keys = {falcon1024.Signer.generate(seed=s).public_key for s in seeds}
     assert len(keys) == len(seeds)
 
 
 @pytest.mark.parametrize("message", [b"", b"x", os.urandom(64), os.urandom(2048)])
-def test_signing_is_byte_identical(signer: fp.FalconSigner, message: bytes) -> None:
+def test_signing_is_byte_identical(signer: falcon1024.Signer, message: bytes) -> None:
     first = signer.sign(message)
     for _ in range(5):
         assert signer.sign(message) == first
@@ -45,14 +46,14 @@ def test_signing_is_byte_identical(signer: fp.FalconSigner, message: bytes) -> N
 
 def test_determinism_across_fresh_instances() -> None:
     msg = b"consensus needs bit-exact signatures"
-    sig1 = fp.FalconSigner.generate(seed=SEED).sign(msg)
-    sig2 = fp.FalconSigner.generate(seed=SEED).sign(msg)
+    sig1 = falcon1024.Signer.generate(seed=SEED).sign(msg)
+    sig2 = falcon1024.Signer.generate(seed=SEED).sign(msg)
     assert sig1 == sig2
 
 
 def test_system_rng_keygen_is_random_but_valid() -> None:
-    a = fp.FalconSigner.generate()
-    b = fp.FalconSigner.generate()
+    a = falcon1024.Signer.generate()
+    b = falcon1024.Signer.generate()
     assert a.public_key != b.public_key  # overwhelmingly likely
     msg = b"system rng"
     a.verifying_key().verify(msg, a.sign(msg))

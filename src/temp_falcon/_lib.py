@@ -1,6 +1,6 @@
 """Internal access to the compiled cffi extension and error-code handling.
 
-`falcon_det1024._falcon` is the compiled extension produced by `_build.py`. Its
+`temp_falcon._falcon` is the compiled extension produced by `_build.py`. Its
 `ffi` and `lib` objects are dynamic, so they are typed `Any`; the stub
 `_falcon.pyi` declares them.
 """
@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from falcon_det1024._falcon import ffi as _ffi
-from falcon_det1024._falcon import lib as _lib
+from temp_falcon._falcon import ffi as _ffi
+from temp_falcon._falcon import lib as _lib
 
 ffi: Any = _ffi
 lib: Any = _lib

@@ -8,7 +8,7 @@ requires = ["setuptools>=77", "cffi>=2.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "falcon-det1024"
+name = "temp-falcon"
 version = "0.3.0"
 description = "Python bindings for the Algorand deterministic Falcon (det1024) post-quantum signature scheme"
 readme = "README.md"
@@ -39,7 +39,7 @@ Repository = "https://github.com/mrcointreau/falcon-det1024"
 Issues = "https://github.com/mrcointreau/falcon-det1024/issues"
 
 # --------------------------------------------------------------------------- #
-# setuptools (src layout; cffi appends the compiled falcon_det1024._falcon extension
+# setuptools (src layout; cffi appends the compiled temp_falcon._falcon extension
 # via setup.py's cffi_modules)
 # --------------------------------------------------------------------------- #
 [tool.setuptools]
@@ -49,7 +49,7 @@ package-dir = { "" = "src" }
 where = ["src"]
 
 [tool.setuptools.package-data]
-falcon_det1024 = ["py.typed", "*.pyi"]
+temp_falcon = ["py.typed", "*.pyi"]
 
 # --------------------------------------------------------------------------- #
 # Dev dependencies (PEP 735 group, uv-native)
@@ -106,7 +106,7 @@ major_on_zero = false
 # Update the PEP 621 version field with a TOML-aware writer.
 version_toml = ["pyproject.toml:project.version"]
 # Update the __version__ string in the package with a regex replace.
-version_variables = ["src/falcon_det1024/__init__.py:__version__"]
+version_variables = ["src/temp_falcon/__init__.py:__version__"]
 # The version bump rewrites pyproject.toml, which leaves uv.lock recording the
 # previous version. build_command runs after the source files are rewritten and
 # before the commit, and `git add` stages the result into the bump commit, so the
@@ -131,8 +131,8 @@ addopts = "-ra"
 # Matches the `requires-python` floor.
 python_version = "3.10"
 strict = true
-files = ["src/falcon_det1024"]
+files = ["src/temp_falcon"]
 # _build.py is a build-time script (it imports cffi's FFI directly and needs no
 # runtime type checking); _falcon is the compiled extension, typed via
 # _falcon.pyi.
-exclude = ['src/falcon_det1024/_build\.py$']
+exclude = ['src/temp_falcon/_build\.py$']

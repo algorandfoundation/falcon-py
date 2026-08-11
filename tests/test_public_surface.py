@@ -1,9 +1,10 @@
 """Pins the public surface to generate / sign / verify.
 
-Adding a name here should be a deliberate act, so the expected set is spelled
+Adding a name here should be a deliberate act, so the expected sets are spelled
 out in full, the C-mirroring layer is asserted to stay private, and the compiled
 extension is held to the declarations the package actually reaches. See
-docs/adr/0006-minimal-public-surface.md.
+docs/adr/0006-minimal-public-surface.md and
+docs/adr/0007-parameter-set-namespaces.md.
 """
 
 from __future__ import annotations
@@ -12,26 +13,44 @@ import importlib
 import pkgutil
 from importlib.metadata import version
 
-import falcon_det1024 as fp
-from falcon_det1024 import _falcon
+import temp_falcon as fp
+from temp_falcon import _falcon
 
 PUBLIC_NAMES = {
     "__version__",
-    "FalconSigner",
-    "FalconVerifier",
-    "PUBLIC_KEY_SIZE",
-    "PRIVATE_KEY_SIZE",
-    "COMPRESSED_SIG_MAX_SIZE",
+    "falcon1024",
     "FalconError",
     "InvalidSignature",
     "KeygenError",
     "SigningError",
 }
 
-# CT format, coefficient inspection, and salt-version reads are C capabilities
-# the package deliberately does not surface.
+# Every parameter-set namespace exposes exactly this surface. A future set
+# (e.g. a det512, should upstream ever define one) is added by listing its
+# module in SET_NAMESPACES, which holds it to the same names.
+SET_NAMESPACES = {"falcon1024"}
+SET_SURFACE = {
+    "Signer",
+    "Verifier",
+    "PUBLIC_KEY_SIZE",
+    "PRIVATE_KEY_SIZE",
+    "COMPRESSED_SIG_MAX_SIZE",
+}
+
+# The classes and constants live only inside their parameter-set namespace; the
+# pre-0.4 flat spellings and the C capabilities the package deliberately does
+# not surface must not come back as top-level names.
 PRIVATE_NAMES = {
     "bindings",
+    "api",
+    "constants",
+    "FalconSigner",
+    "FalconVerifier",
+    "Signer",
+    "Verifier",
+    "PUBLIC_KEY_SIZE",
+    "PRIVATE_KEY_SIZE",
+    "COMPRESSED_SIG_MAX_SIZE",
     "CT_SIGNATURE_SIZE",
     "CURRENT_SALT_VERSION",
     "LOGN",
@@ -40,23 +59,27 @@ PRIVATE_NAMES = {
     "ConversionError",
 }
 
-# `constants` and `exceptions` carry no underscore, so unlike `_bindings` they
-# stay importable in their own right. A name defined there is public even though
-# `__init__.py` never mentions it.
+# `falcon1024` and `exceptions` carry no underscore, so they stay importable in
+# their own right. A name defined there is public even though `__init__.py`
+# never mentions it, so the C capabilities that stay unexposed (CT format,
+# coefficient inspection, salt-version reads) and the pre-0.4 class names are
+# asserted absent explicitly.
 NON_PUBLIC_SUBMODULE_NAMES = {
-    "falcon_det1024.constants": {
+    "temp_falcon.falcon1024": {
+        "FalconSigner",
+        "FalconVerifier",
         "CT_SIGNATURE_SIZE",
         "CURRENT_SALT_VERSION",
         "LOGN",
         "N",
         "SEED_SIZE",
     },
-    "falcon_det1024.exceptions": {"ConversionError"},
+    "temp_falcon.exceptions": {"ConversionError"},
 }
 
 # The only modules that may ship without a leading underscore. Any other public
 # module, such as a hazmat-style layer, has to be declared here first.
-PUBLIC_SUBMODULES = {"api", "constants", "exceptions"}
+PUBLIC_SUBMODULES = {"falcon1024", "exceptions"}
 
 # Every declaration in the cdef, which covers exactly what the package and its
 # tests reach.
@@ -91,6 +114,17 @@ def test_every_exported_name_is_importable() -> None:
         assert hasattr(fp, name), f"{name} is in __all__ but not importable"
 
 
+def test_every_set_namespace_exposes_the_same_surface() -> None:
+    # `__all__` is compared instead of `dir()`, which would also see imported
+    # helpers and the `annotations` attribute that `from __future__ import
+    # annotations` binds.
+    for name in SET_NAMESPACES:
+        module = importlib.import_module(f"temp_falcon.{name}")
+        assert set(module.__all__) == SET_SURFACE, f"{name} deviates from the set surface"
+        for attr in SET_SURFACE:
+            assert hasattr(module, attr), f"{name}.{attr} is in __all__ but not importable"
+
+
 def test_internals_are_not_reachable_from_the_package() -> None:
     for name in PRIVATE_NAMES:
         assert not hasattr(fp, name), f"{name} must not be public"
@@ -105,7 +139,7 @@ def test_internals_are_not_reachable_from_the_public_submodules() -> None:
 
 def test_no_undeclared_submodule_ships_importable() -> None:
     # `hasattr` only sees names bound on the package, so a module file that
-    # nothing imports slips past that check while `import falcon_det1024.x`
+    # nothing imports slips past that check while `import temp_falcon.x`
     # still works.
     shipped = {
         m.name for m in pkgutil.iter_modules(fp.__path__) if not m.name.startswith("_")
@@ -122,4 +156,4 @@ def test_cdef_declares_exactly_what_the_package_reaches() -> None:
 def test_version_matches_the_distribution_metadata() -> None:
     # Two independent semantic-release writers update `__version__` and the
     # pyproject version, so they can drift apart.
-    assert fp.__version__ == version("falcon-det1024")
+    assert fp.__version__ == version("temp-falcon")

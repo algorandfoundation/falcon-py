@@ -1,7 +1,10 @@
-"""Deterministic Falcon (det1024) signing API.
+"""Deterministic Falcon-1024 (det1024): `Signer`, `Verifier`, and sizes.
 
-Signatures are compressed-format and deterministic: the same
-`(private key, message)` always yields byte-identical output.
+This is the det1024 scheme from Algorand's Falcon fork. Signatures are
+compressed-format and deterministic: the same `(private key, message)` always
+yields byte-identical output. They are *not* interoperable with standard
+randomized ("salted") Falcon-1024: det1024 uses a different header byte and a
+one-byte salt version in place of the 40-byte random nonce.
 
 Both `sign` and `verify` operate on the raw `message` bytes with no domain
 separation. To reproduce a signature that an application (e.g. go-algorand)
@@ -13,11 +16,23 @@ made to sign a valid transaction preimage, so use one key for one protocol.
 from __future__ import annotations
 
 from . import _bindings
-from .constants import PUBLIC_KEY_SIZE
+from ._bindings import (
+    COMPRESSED_SIG_MAX_SIZE,
+    PRIVATE_KEY_SIZE,
+    PUBLIC_KEY_SIZE,
+)
 from .exceptions import InvalidSignature
 
+__all__ = [
+    "Signer",
+    "Verifier",
+    "PUBLIC_KEY_SIZE",
+    "PRIVATE_KEY_SIZE",
+    "COMPRESSED_SIG_MAX_SIZE",
+]
 
-class FalconVerifier:
+
+class Verifier:
     """Verifies det1024 compressed signatures against a public key."""
 
     __slots__ = ("_public_key",)
@@ -49,7 +64,7 @@ class FalconVerifier:
         return True
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, FalconVerifier):
+        if not isinstance(other, Verifier):
             return NotImplemented
         return self._public_key == other._public_key
 
@@ -57,10 +72,13 @@ class FalconVerifier:
         return hash(self._public_key)
 
     def __repr__(self) -> str:
-        return f"FalconVerifier(public_key=<{PUBLIC_KEY_SIZE} bytes>)"
+        return (
+            f"falcon1024.{type(self).__name__}"
+            f"(public_key=<{PUBLIC_KEY_SIZE} bytes>)"
+        )
 
 
-class FalconSigner:
+class Signer:
     """Holds a det1024 keypair and produces deterministic compressed signatures.
 
     The public key is always recomputed from the private key, so the two can
@@ -81,7 +99,7 @@ class FalconSigner:
         self._public_key = _bindings.public_key_from_private(self._private_key)
 
     @classmethod
-    def generate(cls, seed: bytes | None = None) -> FalconSigner:
+    def generate(cls, seed: bytes | None = None) -> Signer:
         """Create a new signer.
 
         With `seed=None` the keypair is derived from a fresh 48-byte seed taken
@@ -110,9 +128,12 @@ class FalconSigner:
         """
         return _bindings.sign_compressed(self._private_key, message)
 
-    def verifying_key(self) -> FalconVerifier:
-        """Return a `FalconVerifier` for this signer's public key."""
-        return FalconVerifier(self._public_key)
+    def verifying_key(self) -> Verifier:
+        """Return a `Verifier` for this signer's public key."""
+        return Verifier(self._public_key)
 
     def __repr__(self) -> str:
-        return f"FalconSigner(public_key=<{PUBLIC_KEY_SIZE} bytes>)"
+        return (
+            f"falcon1024.{type(self).__name__}"
+            f"(public_key=<{PUBLIC_KEY_SIZE} bytes>)"
+        )

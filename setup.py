@@ -3,7 +3,7 @@
 Almost all metadata lives in `pyproject.toml`. This file exists only to:
 
 1. Register the cffi build (`cffi_modules`), which appends the compiled
-   `falcon_det1024._falcon` extension to the distribution. cffi provides this
+   `temp_falcon._falcon` extension to the distribution. cffi provides this
    `setup()` keyword via a setuptools entry point, so `cffi` must be in
    `[build-system].requires`.
 
@@ -25,6 +25,6 @@ if not sysconfig.get_config_var("Py_GIL_DISABLED"):
     options["bdist_wheel"] = {"py_limited_api": "cp310"}
 
 setup(
-    cffi_modules=["src/falcon_det1024/_build.py:ffibuilder"],
+    cffi_modules=["src/temp_falcon/_build.py:ffibuilder"],
     options=options,
 )

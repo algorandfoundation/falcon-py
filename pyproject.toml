@@ -64,6 +64,7 @@ dev = [
     "cffi>=2.0.0",
     "pytest>=8.0",
     "mypy>=1.10",
+    "ruff>=0.9",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -119,6 +120,20 @@ build_command = "pip install uv && uv lock --python python3 --no-python-download
 
 [tool.semantic_release.remote]
 type = "github"
+
+# --------------------------------------------------------------------------- #
+# ruff: formatting plus a conservative lint set. Line length and target
+# version stay at the defaults (88; inferred from requires-python).
+# --------------------------------------------------------------------------- #
+[tool.ruff]
+# `src` teaches isort (I) that temp_falcon is first-party in both trees.
+src = ["src", "tests"]
+# The vendored Falcon tree is upstream's; never touch it.
+extend-exclude = ["vendor"]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, import sorting, pyupgrade, bugbear.
+select = ["E", "F", "I", "UP", "B"]
 
 # --------------------------------------------------------------------------- #
 # pytest / mypy

@@ -56,9 +56,7 @@ def _as_bytes(name: str, value: object) -> bytes:
 
 def _check_len(name: str, value: bytes, expected: int) -> None:
     if len(value) != expected:
-        raise ValueError(
-            f"{name} must be exactly {expected} bytes, got {len(value)}"
-        )
+        raise ValueError(f"{name} must be exactly {expected} bytes, got {len(value)}")
 
 
 def keygen(seed: bytes | None = None) -> bytes:

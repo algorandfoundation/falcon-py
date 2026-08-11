@@ -72,10 +72,7 @@ class Verifier:
         return hash(self._public_key)
 
     def __repr__(self) -> str:
-        return (
-            f"falcon1024.{type(self).__name__}"
-            f"(public_key=<{PUBLIC_KEY_SIZE} bytes>)"
-        )
+        return f"falcon1024.{type(self).__name__}(public_key=<{PUBLIC_KEY_SIZE} bytes>)"
 
 
 class Signer:
@@ -133,7 +130,4 @@ class Signer:
         return Verifier(self._public_key)
 
     def __repr__(self) -> str:
-        return (
-            f"falcon1024.{type(self).__name__}"
-            f"(public_key=<{PUBLIC_KEY_SIZE} bytes>)"
-        )
+        return f"falcon1024.{type(self).__name__}(public_key=<{PUBLIC_KEY_SIZE} bytes>)"

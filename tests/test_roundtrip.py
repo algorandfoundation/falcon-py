@@ -8,7 +8,6 @@ import pytest
 
 from temp_falcon import falcon1024
 
-
 MESSAGES = [
     b"",
     b"\x00",
@@ -75,7 +74,10 @@ def test_verifier_equality_and_hash(signer: falcon1024.Signer) -> None:
 def test_repr_hides_secret(signer: falcon1024.Signer) -> None:
     # An exact match is required because a template that interpolated the key
     # itself would still contain the word "bytes".
-    assert repr(signer) == f"falcon1024.Signer(public_key=<{falcon1024.PUBLIC_KEY_SIZE} bytes>)"
+    assert (
+        repr(signer)
+        == f"falcon1024.Signer(public_key=<{falcon1024.PUBLIC_KEY_SIZE} bytes>)"
+    )
     assert (
         repr(signer.verifying_key())
         == f"falcon1024.Verifier(public_key=<{falcon1024.PUBLIC_KEY_SIZE} bytes>)"

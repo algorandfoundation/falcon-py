@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # Python dependencies via uv.lock: security alerts plus weekly version PRs.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      # Conventional-commit prefix so semantic-release parses (and ignores)
+      # these commits cleanly; chore never triggers a release.
+      prefix: "chore(deps)"
+
+  # The workflows pin actions to commit SHAs; this is what keeps those pins
+  # from fossilizing (Dependabot updates the SHA and the version comment).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"

@@ -21,12 +21,12 @@ Prebuilt `cp310-abi3` wheels are published for Linux (x86_64/aarch64, manylinux 
 ```python
 from temp_falcon import falcon1024, InvalidSignature
 
-signer = falcon1024.Signer.generate()     # or generate(seed) for deterministic keygen
+signer = falcon1024.Signer.generate()  # or generate(seed) for deterministic keygen
 
-signature = signer.sign(b"hello world")   # deterministic, compressed format
+signature = signer.sign(b"hello world")  # deterministic, compressed format
 
 verifier = signer.verifying_key()
-verifier.verify(b"hello world", signature)      # returns None; raises on failure
+verifier.verify(b"hello world", signature)  # returns None; raises on failure
 assert verifier.is_valid(b"hello world", signature)
 
 try:
@@ -91,8 +91,10 @@ Requires [uv](https://docs.astral.sh/uv/). The Falcon C sources are vendored as 
 git clone --recurse-submodules https://github.com/mrcointreau/falcon-det1024
 cd falcon-det1024
 uv sync                 # builds the cffi extension + installs dev deps
+uvx pre-commit install  # ruff format + lint on every commit
 uv run pytest           # roundtrip, determinism, tamper, surface, and 512+32 KATs
 uv run mypy             # strict
+uv run ruff format . && uv run ruff check --fix .   # or let the pre-commit hook do it
 ```
 
 Wheels are built with [cibuildwheel](https://cibuildwheel.pypa.io/) (`uvx cibuildwheel` locally). Releases are cut by [python-semantic-release](https://python-semantic-release.readthedocs.io/) from [conventional commits](https://www.conventionalcommits.org/).

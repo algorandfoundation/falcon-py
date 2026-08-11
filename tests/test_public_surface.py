@@ -120,9 +120,13 @@ def test_every_set_namespace_exposes_the_same_surface() -> None:
     # annotations` binds.
     for name in SET_NAMESPACES:
         module = importlib.import_module(f"temp_falcon.{name}")
-        assert set(module.__all__) == SET_SURFACE, f"{name} deviates from the set surface"
+        assert set(module.__all__) == SET_SURFACE, (
+            f"{name} deviates from the set surface"
+        )
         for attr in SET_SURFACE:
-            assert hasattr(module, attr), f"{name}.{attr} is in __all__ but not importable"
+            assert hasattr(module, attr), (
+                f"{name}.{attr} is in __all__ but not importable"
+            )
 
 
 def test_internals_are_not_reachable_from_the_package() -> None:

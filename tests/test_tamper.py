@@ -37,7 +37,9 @@ def test_wrong_key_rejected(sig: bytes) -> None:
         other.verify(MSG, sig)
 
 
-def test_truncated_signature_rejected(verifier: falcon1024.Verifier, sig: bytes) -> None:
+def test_truncated_signature_rejected(
+    verifier: falcon1024.Verifier, sig: bytes
+) -> None:
     with pytest.raises(fp.InvalidSignature):
         verifier.verify(MSG, sig[:1])  # < 2 bytes
     with pytest.raises(fp.InvalidSignature):

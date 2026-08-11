@@ -8,7 +8,6 @@ import pytest
 
 from temp_falcon import falcon1024
 
-
 SEED = bytes(range(32))
 
 

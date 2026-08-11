@@ -27,8 +27,7 @@ from pathlib import Path
 
 import pytest
 
-from temp_falcon import _falcon
-from temp_falcon import falcon1024
+from temp_falcon import _falcon, falcon1024
 
 
 def find_kat_header() -> Path | None:

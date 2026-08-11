@@ -5,8 +5,7 @@ from __future__ import annotations
 import pytest
 
 import temp_falcon as fp
-from temp_falcon import falcon1024
-from temp_falcon import _bindings
+from temp_falcon import _bindings, falcon1024
 
 
 def test_exception_hierarchy() -> None:

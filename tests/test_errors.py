@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-import temp_falcon as fp
-from temp_falcon import _bindings, falcon1024
+import algorand_falcon as fp
+from algorand_falcon import _bindings, falcon1024
 
 
 def test_exception_hierarchy() -> None:

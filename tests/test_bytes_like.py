@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from temp_falcon import _bindings, falcon1024
+from algorand_falcon import _bindings, falcon1024
 
 
 def test_sign_and_verify_accept_bytes_like(

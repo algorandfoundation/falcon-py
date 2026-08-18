@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-import temp_falcon as fp
-from temp_falcon import falcon1024
+import algorand_falcon as fp
+from algorand_falcon import falcon1024
 
 MSG = b"the message under signature"
 

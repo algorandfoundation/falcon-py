@@ -13,8 +13,8 @@ import importlib
 import pkgutil
 from importlib.metadata import version
 
-import temp_falcon as fp
-from temp_falcon import _falcon
+import algorand_falcon as fp
+from algorand_falcon import _falcon
 
 PUBLIC_NAMES = {
     "__version__",
@@ -65,7 +65,7 @@ PRIVATE_NAMES = {
 # coefficient inspection, salt-version reads) and the pre-0.4 class names are
 # asserted absent explicitly.
 NON_PUBLIC_SUBMODULE_NAMES = {
-    "temp_falcon.falcon1024": {
+    "algorand_falcon.falcon1024": {
         "FalconSigner",
         "FalconVerifier",
         "CT_SIGNATURE_SIZE",
@@ -74,7 +74,7 @@ NON_PUBLIC_SUBMODULE_NAMES = {
         "N",
         "SEED_SIZE",
     },
-    "temp_falcon.exceptions": {"ConversionError"},
+    "algorand_falcon.exceptions": {"ConversionError"},
 }
 
 # The only modules that may ship without a leading underscore. Any other public
@@ -119,7 +119,7 @@ def test_every_set_namespace_exposes_the_same_surface() -> None:
     # helpers and the `annotations` attribute that `from __future__ import
     # annotations` binds.
     for name in SET_NAMESPACES:
-        module = importlib.import_module(f"temp_falcon.{name}")
+        module = importlib.import_module(f"algorand_falcon.{name}")
         assert set(module.__all__) == SET_SURFACE, (
             f"{name} deviates from the set surface"
         )
@@ -143,7 +143,7 @@ def test_internals_are_not_reachable_from_the_public_submodules() -> None:
 
 def test_no_undeclared_submodule_ships_importable() -> None:
     # `hasattr` only sees names bound on the package, so a module file that
-    # nothing imports slips past that check while `import temp_falcon.x`
+    # nothing imports slips past that check while `import algorand_falcon.x`
     # still works.
     shipped = {
         m.name for m in pkgutil.iter_modules(fp.__path__) if not m.name.startswith("_")
@@ -160,4 +160,4 @@ def test_cdef_declares_exactly_what_the_package_reaches() -> None:
 def test_version_matches_the_distribution_metadata() -> None:
     # Two independent semantic-release writers update `__version__` and the
     # pyproject version, so they can drift apart.
-    assert fp.__version__ == version("temp-falcon")
+    assert fp.__version__ == version("algorand-falcon")

@@ -1,6 +1,6 @@
 # Design & binding reference
 
-How-it-works and reference notes for temp-falcon. The significant, alternative-bearing decisions live as decision records under [adr/](adr/), which indexes them.
+How-it-works and reference notes for algorand-falcon. The significant, alternative-bearing decisions live as decision records under [adr/](adr/), which indexes them.
 
 ## The cdef forms
 

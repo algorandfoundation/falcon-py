@@ -1,4 +1,4 @@
-"""CFFI build script for temp-falcon, using out-of-line API mode.
+"""CFFI build script for algorand-falcon, using out-of-line API mode.
 
 Compiles the vendored Falcon C sources (see `SOURCES`) and declares the subset
 of `deterministic.h` and `falcon.h` that the package and its tests reach.
@@ -30,7 +30,7 @@ import os
 from cffi import FFI
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-# _build.py lives at <repo>/src/temp_falcon/, so the repo root is two levels up.
+# _build.py lives at <repo>/src/algorand_falcon/, so the repo root is two levels up.
 _REPO_ROOT = os.path.abspath(os.path.join(_HERE, os.pardir, os.pardir))
 _FALCON_DIR = os.path.join(_REPO_ROOT, "vendor", "falcon")
 
@@ -107,7 +107,7 @@ _sources = [os.path.relpath(os.path.join(_FALCON_DIR, name)) for name in SOURCES
 _include_dirs = [os.path.relpath(_FALCON_DIR)]
 
 ffibuilder.set_source(
-    "temp_falcon._falcon",
+    "algorand_falcon._falcon",
     r"""
     #include "falcon.h"
     #include "deterministic.h"

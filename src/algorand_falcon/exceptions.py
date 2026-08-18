@@ -1,4 +1,4 @@
-"""Exception hierarchy for temp-falcon.
+"""Exception hierarchy for algorand-falcon.
 
 All errors derive from `FalconError`. Verification failures raise
 `InvalidSignature`. Invalid argument sizes raise the built-in `ValueError`, and
@@ -9,7 +9,7 @@ from __future__ import annotations
 
 
 class FalconError(Exception):
-    """Base class for all temp-falcon errors."""
+    """Base class for all algorand-falcon errors."""
 
 
 class InvalidSignature(FalconError):

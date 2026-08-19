@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algorand-falcon"
-version = "0.4.0"
+version = "0.1.0"
 description = "Python bindings for the Algorand deterministic Falcon (det1024) post-quantum signature scheme"
 readme = "README.md"
 requires-python = ">=3.10"

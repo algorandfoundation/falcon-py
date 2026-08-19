@@ -88,7 +88,7 @@ The parameter set lives in the `falcon1024` namespace module; the exceptions are
 Requires [uv](https://docs.astral.sh/uv/). The Falcon C sources are vendored as a git submodule.
 
 ```console
-git clone --recurse-submodules https://github.com/mrcointreau/falcon-det1024
+git clone --recurse-submodules https://github.com/algorandfoundation/falcon-py
 cd falcon-det1024
 uv sync                 # builds the cffi extension + installs dev deps
 uvx pre-commit install  # ruff format + lint on every commit

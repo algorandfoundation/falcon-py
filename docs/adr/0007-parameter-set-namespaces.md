@@ -35,4 +35,4 @@ Breaking change to the 0.3.0 surface: `FalconSigner` → `falcon1024.Signer`, `F
 
 Pickles of 0.3.0 objects do not load in 0.4.0 (the class path changed). Unpickle with the old version and re-store raw key bytes; pickling long-lived private keys is discouraged regardless.
 
-`from temp_falcon.falcon1024 import Signer` remains possible and unambiguous while one set exists; users who do this across a future second set take on the aliasing themselves. The KATs, the cdef set-equality test, and the version-metadata test are unchanged.
+`from algorand_falcon.falcon1024 import Signer` remains possible and unambiguous while one set exists; users who do this across a future second set take on the aliasing themselves. The KATs, the cdef set-equality test, and the version-metadata test are unchanged.

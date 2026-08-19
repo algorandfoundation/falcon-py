@@ -1,4 +1,4 @@
-"""Type stub for the compiled cffi extension `temp_falcon._falcon`.
+"""Type stub for the compiled cffi extension `algorand_falcon._falcon`.
 
 cffi generates the real module from `_build.py`. Its `ffi` and `lib` objects
 are dynamic, so they are typed `Any`; the type-checked wrappers live in

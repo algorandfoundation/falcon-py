@@ -1,10 +1,10 @@
-"""Shared fixtures and helpers for the temp-falcon test suite."""
+"""Shared fixtures and helpers for the algorand-falcon test suite."""
 
 from __future__ import annotations
 
 import pytest
 
-from temp_falcon import falcon1024
+from algorand_falcon import falcon1024
 
 # A fixed seed so the keypair (and thus signatures) are stable across the suite.
 SEED = bytes(range(32))

@@ -1,4 +1,4 @@
-# temp-falcon
+# algorand-falcon
 
 Python bindings for the Algorand deterministic **Falcon** (`det1024`) post-quantum signature scheme, built directly over the [`algorand/falcon`](https://github.com/algorand/falcon) C implementation with [cffi](https://cffi.readthedocs.io/) in **API mode**.
 
@@ -11,7 +11,7 @@ Python bindings for the Algorand deterministic **Falcon** (`det1024`) post-quant
 ## Installation
 
 ```console
-pip install temp-falcon
+pip install algorand-falcon
 ```
 
 Prebuilt `cp310-abi3` wheels are published for Linux (x86_64/aarch64, manylinux and musllinux), macOS (x86_64/arm64), and Windows (amd64). The only runtime dependency is `cffi`.
@@ -19,7 +19,7 @@ Prebuilt `cp310-abi3` wheels are published for Linux (x86_64/aarch64, manylinux 
 ## Quickstart
 
 ```python
-from temp_falcon import falcon1024, InvalidSignature
+from algorand_falcon import falcon1024, InvalidSignature
 
 signer = falcon1024.Signer.generate()  # or generate(seed) for deterministic keygen
 
@@ -42,7 +42,7 @@ except InvalidSignature:
 ```python
 from algosdk import mnemonic, constants
 from algosdk.signer import Falcon1024TransactionSigner
-from temp_falcon import falcon1024
+from algorand_falcon import falcon1024
 
 seed = mnemonic.to_pq_seed(my_mnemonic, constants.falcon_1024_scheme)  # 32 bytes
 signer = falcon1024.Signer.generate(seed)
@@ -88,7 +88,7 @@ The parameter set lives in the `falcon1024` namespace module; the exceptions are
 Requires [uv](https://docs.astral.sh/uv/). The Falcon C sources are vendored as a git submodule.
 
 ```console
-git clone --recurse-submodules https://github.com/mrcointreau/falcon-det1024
+git clone --recurse-submodules https://github.com/algorandfoundation/falcon-py
 cd falcon-det1024
 uv sync                 # builds the cffi extension + installs dev deps
 uvx pre-commit install  # ruff format + lint on every commit

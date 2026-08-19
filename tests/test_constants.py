@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from temp_falcon import falcon1024
+from algorand_falcon import falcon1024
 
 
 def test_sizes_match_spec() -> None:

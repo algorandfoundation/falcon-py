@@ -1,4 +1,4 @@
-"""temp-falcon: Python bindings for the Algorand deterministic Falcon (det1024)
+"""algorand-falcon: Python bindings for the Algorand deterministic Falcon (det1024)
 post-quantum signature scheme.
 
 Each parameter set is a namespace module holding `Signer`, `Verifier`, and its
@@ -8,7 +8,7 @@ private, so the only supported way to reach a det1024 primitive is through
 
 Example
 -------
->>> from temp_falcon import falcon1024
+>>> from algorand_falcon import falcon1024
 >>> signer = falcon1024.Signer.generate()
 >>> sig = signer.sign(b"hello world")
 >>> signer.verifying_key().verify(b"hello world", sig)  # no exception == valid
